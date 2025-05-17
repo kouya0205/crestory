@@ -1,0 +1,318 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+    // Further reading:
+    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+    url      = env("DATABASE_URL")
+}
+
+// Existing models with potential modifications below
+model Post {
+  id        Int      @id @default(autoincrement())
+  name      String // This seems like a generic "Post". We might want more specific content models.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdBy   User   @relation(fields: [createdById], references: [id])
+  createdById String
+
+  // 👇 MuseAI specific additions for a generic "Post" if used for creative outputs
+  projectId   Int?     // Link to a Project
+  project     Project? @relation(fields: [projectId], references: [id])
+  contentType String?  // e.g., "blog_article", "short_story", "image_prompt_result"
+  content     Json?    // Store actual content, prompts, or metadata related to the post
+  visibility  String   @default("private") // "private", "unlisted", "public"
+  tags        String[] // For discoverability
+
+  @@index([name])
+  @@index([createdById])
+  @@index([projectId])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refresh_token_expires_in Int? // Specific to some providers like Keycloak
+
+  @@unique([provider, providerAccountId])
+  @@index([userId]) // Added for faster lookups by userId
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId]) // Added for faster lookups by userId
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  pwHash        String?   // Consider if you are only using OAuth or also email/pw
+  accounts      Account[]
+  sessions      Session[]
+  posts         Post[] // Potentially rename or make more specific depending on content strategy
+
+  // 👇 MuseAI specific additions
+  projects            Project[]             // User's creative projects
+  aiInteractions      AiInteractionLog[]    // Log of interactions with AI features
+  preferences         UserPreference?       // User-specific settings for MuseAI
+  Subscription        Subscription?         // User's subscription status
+  credits             Int                   @default(0) // For freemium model, AI generation credits
+  lastCreditReset     DateTime?             // When credits were last reset (for monthly free credits)
+  interests           String[]              // For personalization (e.g., "illustration", "writing")
+  skillLevel          String?               // e.g., "beginner", "intermediate", "advanced"
+  currentStreak       Int                   @default(0) // For gamification
+  longestStreak       Int                   @default(0) // For gamification
+  experiencePoints    Int                   @default(0) // For gamification / leveling
+  badges              Badge[]               @relation("UserBadges") // Earned badges
+  onboardingCompleted Boolean               @default(false)
+  
+  // 👇 New relations for quests and social features
+  questProgress       UserQuestProgress[]
+  sharedWorks         SharedWork[]
+  comments            Comment[]
+  likes               Like[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// --- 👇 New Models for MuseAI ---
+
+// Represents a creative project a user is working on
+model Project {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  status      String    @default("draft") // e.g., "draft", "in_progress", "completed", "archived"
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectType String?   // e.g., "illustration_series", "short_story_collection", "game_concept"
+  visibility  String    @default("private") // "private", "unlisted", "public_template" (if sharable)
+  tags        String[]
+  coverImage  String?   // URL to a cover image for the project
+
+  // Relations to content within the project
+  projectAssets ProjectAsset[]
+  posts         Post[] // If posts are part of a project
+  aiSessions    AiInteractionLog[] @relation("ProjectAiSessions")
+  sharedWorks   SharedWork[] // 👇 New relation for shared works from this project
+
+  @@index([userId])
+  @@index([title])
+}
+
+// Represents individual assetspolling within a project (images, text snippets, audio, etc.)
+model ProjectAsset {
+  id          Int      @id @default(autoincrement())
+  projectId   Int
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assetType   String   // e.g., "image", "text_document", "audio_clip", "video_snippet", "ai_prompt"
+  fileName    String?
+  fileUrl     String?  // URL if stored externally (e.g., S3)
+  content     Json?    // For text content, prompts, or metadata
+  mimeType    String?
+  size        Int?     // File size in bytes
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  version     Int      @default(1)
+  notes       String?  // User notes for this asset
+
+  // Relation to AI interactions if this asset was AI-generated or assisted
+  aiInteractionId String?
+  aiInteraction   AiInteractionLog? @relation(fields: [aiInteractionId], references: [id])
+  sharedWorks     SharedWork[] // 👇 New relation for shared works containing this asset
+
+  @@index([projectId])
+  @@index([assetType])
+}
+
+// Logs interactions with AI features (Rubber Duck AI, generation, etc.)
+model AiInteractionLog {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId        Int?      // Optional: if interaction is tied to a specific project
+  project          Project?  @relation("ProjectAiSessions", fields: [projectId], references: [id])
+  interactionType  String    // e.g., "rubber_duck_chat", "image_generation", "text_completion", "style_transfer"
+  prompt           String?   @db.Text // User's input/prompt
+  response         Json?     // AI's response (can be text, image URLs, JSON data)
+  modelUsed        String?   // e.g., "gpt-4o", "dall-e-3", "stable-diffusion-3"
+  cost             Float?    // Cost of this interaction (if applicable, for tracking)
+  durationMs       Int?      // Duration of the interaction
+  userFeedback     Int?      // e.g., 1-5 star rating, or thumbs up/down
+  notes            String?   // User notes on this interaction
+  createdAt        DateTime  @default(now())
+  generatedAssets  ProjectAsset[] // Assets generated from this interaction
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([interactionType])
+}
+
+// User-specific preferences for MuseAI
+model UserPreference {
+  id                      String  @id @default(cuid())
+  userId                  String  @unique // One-to-one with User
+  user                    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  defaultAiModel          String? // User's preferred default AI model for a certain task
+  defaultProjectVisibility String @default("private")
+  notificationSettings    Json?   // e.g., { "new_feature_updates": true, "community_mentions": false }
+  uiTheme                 String  @default("light") // "light", "dark", "system"
+  language                String  @default("en")    // User's preferred language for the UI
+  creativeFields          String[] // Primary creative fields user is interested in
+  updatedAt               DateTime @updatedAt
+}
+
+// Subscription model for paid features
+model Subscription {
+  id                 String    @id @default(cuid())
+  userId             String    @unique // One-to-one with User
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId             String    // e.g., "free", "museai_plus_monthly", "museai_plus_yearly"
+  status             String    // e.g., "active", "canceled", "past_due", "trialing"
+  stripeCustomerId   String?   @unique // From Stripe or other payment provider
+  stripeSubscriptionId String? @unique // From Stripe or other payment provider
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  trialStart         DateTime?
+  trialEnd           DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  cancelAtPeriodEnd  Boolean   @default(false)
+}
+
+// For gamification - badges users can earn
+model Badge {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String
+  iconUrl     String?
+  criteria    Json?    // How this badge is earned (e.g., {"quest_id": 123, "min_interactions": 50})
+  users       User[]   @relation("UserBadges")
+  quests      Quest[]  // 👇 New relation for quests that reward this badge
+  createdAt   DateTime @default(now())
+}
+
+// For "Creative Quests" or challenges
+model Quest {
+  id             Int      @id @default(autoincrement())
+  title          String
+  description    String
+  rewardPoints   Int?
+  rewardBadgeId  Int?
+  rewardBadge    Badge?   @relation(fields: [rewardBadgeId], references: [id])
+  criteria       Json     // e.g., {"action": "generate_image", "count": 5, "theme": "spring"}
+  isActive       Boolean  @default(true)
+  startDate      DateTime?
+  endDate        DateTime?
+  questType      String   // "daily", "weekly", "event", "tutorial"
+  userProgress   UserQuestProgress[]
+  createdAt      DateTime @default(now())
+}
+
+model UserQuestProgress {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questId     Int
+  quest       Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
+  progress    Json     // e.g., {"generated_images_spring": 3}
+  isCompleted Boolean  @default(false)
+  completedAt DateTime?
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, questId])
+  @@index([userId])
+}
+
+// For Community Gallery / Sharing
+model SharedWork {
+  id             Int      @id @default(autoincrement())
+  title          String
+  description    String?
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId      Int?     // Optional: if shared from a project
+  project        Project? @relation(fields: [projectId], references: [id])
+  assetId        Int?     // Optional: if a specific asset is shared
+  projectAsset   ProjectAsset? @relation(fields: [assetId], references: [id])
+  contentUrl     String?  // If direct URL for image/video
+  textContent    String? @db.Text // If sharing text
+  tags           String[]
+  visibility     String   @default("public") // "public", "unlisted"
+  allowComments  Boolean  @default(true)
+  allowRemixing  Boolean  @default(false) // If others can use this as a base
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  likesCount     Int      @default(0)
+  viewsCount     Int      @default(0)
+  comments       Comment[]
+  likes          Like[]
+
+  @@index([userId])
+  @@index([tags])
+}
+
+model Comment {
+  id           Int      @id @default(autoincrement())
+  content      String
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sharedWorkId Int
+  sharedWork   SharedWork @relation(fields: [sharedWorkId], references: [id], onDelete: Cascade)
+  parentId     Int?     // For threaded comments
+  parent       Comment? @relation("Replies", fields: [parentId], references: [id], onDelete:Restrict, onUpdate:Cascade)
+  replies      Comment[] @relation("Replies")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([sharedWorkId])
+}
+
+model Like {
+  id           Int      @id @default(autoincrement())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sharedWorkId Int
+  sharedWork   SharedWork @relation(fields: [sharedWorkId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+
+  @@unique([userId, sharedWorkId]) // User can only like a work once
+  @@index([userId])
+  @@index([sharedWorkId])
+}
