@@ -1,29 +1,54 @@
-# Create T3 App
+# PickBuy（ピクバイ）
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+PickBuy（ピクバイ）は、地方の生産者・職人と全国の消費者を繋ぐライブコマースプラットフォームです。
 
-## What's next? How do I make an app with this?
+## プロジェクト概要
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+このプロジェクトは以下の技術スタックを使用しています：
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+- [Next.js](https://nextjs.org) - Reactフレームワーク
+- [NextAuth.js](https://next-auth.js.org) - 認証システム
+- [Prisma](https://prisma.io) - データベースORM
+- [Tailwind CSS](https://tailwindcss.com) - スタイリング
+- [tRPC](https://trpc.io) - タイプセーフなAPI
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+## 開発環境のセットアップ
 
-## Learn More
+1. リポジトリのクローン
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+```bash
+git clone https://github.com/your-username/pickbuy.git
+cd pickbuy
+```
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+2. 依存関係のインストール
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+```bash
+npm install
+```
 
-## How do I deploy this?
+3. 環境変数の設定
+   `.env`ファイルを作成し、必要な環境変数を設定してください。
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+4. データベースのセットアップ
+
+```bash
+npm run db:generate
+npm run db:push
+```
+
+5. 開発サーバーの起動
+
+```bash
+npm run dev
+```
+
+## デプロイメント
+
+このプロジェクトは以下のプラットフォームにデプロイ可能です：
+
+- [Vercel](https://vercel.com)
+- [Netlify](https://netlify.com)
+- [Docker](https://docker.com)
+
+詳細なデプロイメント手順については、各プラットフォームのドキュメントを参照してください。

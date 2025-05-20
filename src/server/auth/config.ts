@@ -4,7 +4,7 @@ import DiscordProvider from "next-auth/providers/discord";
 
 import { db } from "@/server/db";
 import Credentials from "next-auth/providers/credentials";
-import { signInSchema } from "@/lib/zod";
+import { credentialsSchema } from "@/lib/zod";
 import { ZodError } from "zod";
 import { getUserFromDb } from "./utils";
 import { v4 as uuid } from "uuid";
@@ -60,15 +60,16 @@ export const authConfig = {
       async authorize(credentials) {
         try {
           // 入力値を検証
-          const { email, password } = await signInSchema.parseAsync(credentials);
- 
+          const { email, password } =
+            await credentialsSchema.parseAsync(credentials);
+
           // ユーザー認証
           const user = await getUserFromDb(email, password);
- 
+
           if (!user) {
             throw new Error("認証情報が無効です。");
           }
- 
+
           // ユーザー情報を返す
           return user;
         } catch (error) {
@@ -93,18 +94,18 @@ export const authConfig = {
   ],
   callbacks: {
     async jwt({ token, user, account }) {
-      if(account?.provider === "credentials") {
+      if (account?.provider === "credentials") {
         token.credentials = true;
       }
       return token;
     },
   },
   jwt: {
-    encode: async function(params) {
-      if(params.token?.credentials) {
+    encode: async function (params) {
+      if (params.token?.credentials) {
         const sessionToken = uuid();
 
-        if(!params.token.sub) {
+        if (!params.token.sub) {
           throw new Error("sub claim is required");
         }
         const createdSession = await adapter?.createSession?.({
@@ -113,7 +114,7 @@ export const authConfig = {
           expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         });
 
-        if(!createdSession) {
+        if (!createdSession) {
           throw new Error("Failed to create session");
         }
 
@@ -122,5 +123,5 @@ export const authConfig = {
       return defaultEncode(params);
     },
   },
-    secret: process.env.AUTH_SECRET!,
+  secret: process.env.AUTH_SECRET!,
 } satisfies NextAuthConfig;

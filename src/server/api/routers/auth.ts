@@ -1,12 +1,14 @@
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { createUser } from "@/server/auth/utils";
-import { signInSchema } from "@/lib/zod";
+import { signUpSchema } from "@/lib/zod";
+import { TRPCError } from "@trpc/server";
 
 export const authRouter = createTRPCRouter({
   register: publicProcedure
-    .input(signInSchema)
+    .input(signUpSchema)
     .mutation(async ({ ctx, input }) => {
-      const { email, password, name } = await signInSchema.parseAsync(input);
+      const { email, password, name, confirmPassword } =
+        await signUpSchema.parseAsync(input);
 
       // メールアドレスの重複チェック
       const existingUser = await ctx.db.user.findUnique({
@@ -14,7 +16,10 @@ export const authRouter = createTRPCRouter({
       });
 
       if (existingUser) {
-        throw new Error("このメールアドレスは既に使用されています");
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "このメールアドレスは既に使用されています",
+        });
       }
 
       // ユーザー作成
@@ -26,7 +31,7 @@ export const authRouter = createTRPCRouter({
           id: user.id,
           name: user.name,
           email: user.email,
-        }
+        },
       };
     }),
-}); 
+});

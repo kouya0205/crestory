@@ -4,7 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
+  --font-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
@@ -79,6 +80,37 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* pick-buy テーマカラー */
+  --pick-buy-primary: #4a90e2; /* インスピレーション・ブルー */
+  --pick-buy-primary-hover: #357abd; /* ホバー時の色 */
+  --pick-buy-primary-light: #d4e4f7;
+  --pick-buy-primary-light-hover: #c2d6f0;
+
+  --pick-buy-accent: #ffd166; /* 柔らかいスパークル・イエロー */
+  --pick-buy-accent-hover: #f9c74f; /* ホバー時の色 */
+  --pick-buy-accent-light: #fff3d9; /* 薄いイエロー（背景やハイライトに使用） */
+
+  --pick-buy-creative-purple: #9381ff; /* クリエイティブを表す紫 */
+  --pick-buy-creative-purple-light: #e9e5ff; /* 薄い紫 */
+  --pick-buy-creative-teal: #57c4b8; /* ティール（創造性と落ち着きを表す） */
+  --pick-buy-creative-teal-light: #d8f3f0; /* 薄いティール */
+
+  --pick-buy-neutral-100: #ffffff; /* 白 */
+  --pick-buy-neutral-200: #f8f9fa; /* 非常に薄いグレー */
+  --pick-buy-neutral-300: #e9ecef; /* 薄いグレー（ボーダーなど） */
+  --pick-buy-neutral-400: #ced4da; /* ミディアムライトグレー */
+  --pick-buy-neutral-500: #adb5bd; /* ミディアムグレー */
+  --pick-buy-neutral-600: #6c757d; /* ミディアムダークグレー（サブテキスト） */
+  --pick-buy-neutral-700: #495057; /* ダークグレー */
+  --pick-buy-neutral-800: #343a40; /* 非常にダークグレー（メインテキスト） */
+
+  --pick-buy-success: #40916c; /* 成功 - 落ち着いたグリーン */
+  --pick-buy-error: #e76f51; /* エラー - 柔らかいレッド */
+  --pick-buy-warning: #f8961e; /* 警告 - オレンジ */
+  --pick-buy-info: #4ea8de; /* 情報 - 明るいブルー */
+
+  --pick-buy-text: #212529; /* メインテキスト - 非常にダークグレー */
 }
 
 .dark {
@@ -113,6 +145,22 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* pick-buy ダークモードテーマカラー */
+  --pick-buy-primary: #357abd; /* ダークモード用のブルー */
+  --pick-buy-primary-hover: #2c6aa0;
+  --pick-buy-accent: #ffc107; /* ダークモード用のイエロー */
+  --pick-buy-accent-hover: #ffb300;
+  --pick-buy-sub: #2a2a2a; /* ダークモード用のグレー */
+  --pick-buy-text: #ffffff; /* ダークモード用のテキスト */
+  --pick-buy-text-light: #cccccc;
+  --pick-buy-background: #1a1a1a; /* ダークモード用の背景 */
+  --pick-buy-background-alt: #242424;
+  --pick-buy-border: #404040;
+  --pick-buy-success: #66bb6a;
+  --pick-buy-error: #ef5350;
+  --pick-buy-warning: #ffca28;
+  --pick-buy-info: #42a5f5;
 }
 
 @layer base {
