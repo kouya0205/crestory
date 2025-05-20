@@ -24,7 +24,7 @@ model Post {
   createdBy   User   @relation(fields: [createdById], references: [id])
   createdById String
 
-  // 👇 MuseAI specific additions for a generic "Post" if used for creative outputs
+  // 👇 pick-buyAI specific additions for a generic "Post" if used for creative outputs
   projectId   Int?     // Link to a Project
   project     Project? @relation(fields: [projectId], references: [id])
   contentType String?  // e.g., "blog_article", "short_story", "image_prompt_result"
@@ -78,10 +78,10 @@ model User {
   sessions      Session[]
   posts         Post[] // Potentially rename or make more specific depending on content strategy
 
-  // 👇 MuseAI specific additions
+  // 👇 pick-buyAI specific additions
   projects            Project[]             // User's creative projects
   aiInteractions      AiInteractionLog[]    // Log of interactions with AI features
-  preferences         UserPreference?       // User-specific settings for MuseAI
+  preferences         UserPreference?       // User-specific settings for pick-buyAI
   Subscription        Subscription?         // User's subscription status
   credits             Int                   @default(0) // For freemium model, AI generation credits
   lastCreditReset     DateTime?             // When credits were last reset (for monthly free credits)
@@ -108,7 +108,7 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// --- 👇 New Models for MuseAI ---
+// --- 👇 New Models for pick-buyAI ---
 
 // Represents a creative project a user is working on
 model Project {
@@ -183,7 +183,7 @@ model AiInteractionLog {
   @@index([interactionType])
 }
 
-// User-specific preferences for MuseAI
+// User-specific preferences for pick-buyAI
 model UserPreference {
   id                      String  @id @default(cuid())
   userId                  String  @unique // One-to-one with User
@@ -202,7 +202,7 @@ model Subscription {
   id                 String    @id @default(cuid())
   userId             String    @unique // One-to-one with User
   user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  planId             String    // e.g., "free", "museai_plus_monthly", "museai_plus_yearly"
+  planId             String    // e.g., "free", "pick-buyai_plus_monthly", "pick-buyai_plus_yearly"
   status             String    // e.g., "active", "canceled", "past_due", "trialing"
   stripeCustomerId   String?   @unique // From Stripe or other payment provider
   stripeSubscriptionId String? @unique // From Stripe or other payment provider
