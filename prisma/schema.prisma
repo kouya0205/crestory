@@ -98,6 +98,24 @@ model User {
   sharedWorks         SharedWork[]
   comments            Comment[]
   likes               Like[]
+
+  // PickBuy追加フィールド
+  role            String    @default("user")  // user, producer, admin
+  bio             String?   @db.Text
+  phoneNumber     String?
+  address         Json?
+  socialLinks     Json?     // SNSリンク情報
+  verifiedSeller  Boolean   @default(false)
+  bankAccount     Json?     // 銀行口座情報（販売者用）
+  has_seen_tutorial Boolean @default(false)  // チュートリアル表示フラグ
+  
+  // PickBuy関連リレーション
+  products        Product[]
+  livestreams     LiveStream[]
+  chatMessages    ChatMessage[]
+  orders          Order[]
+  reviews         Review[]
+  analytics       Analytics[]
 }
 
 model VerificationToken {
@@ -315,4 +333,185 @@ model Like {
   @@unique([userId, sharedWorkId]) // User can only like a work once
   @@index([userId])
   @@index([sharedWorkId])
+}
+
+// PickBuy用のモデル追加
+model Product {
+  id              String      @id @default(cuid())
+  name            String
+  description     String      @db.Text
+  price           Float
+  images          String[]    // 商品画像のURL配列
+  stock           Int         @default(0)
+  category        String
+  tags            String[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  // 関連情報
+  userId          String      // 製作者/販売者ID
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  regionId        String
+  region          Region      @relation(fields: [regionId], references: [id])
+  
+  // リレーション
+  livestreams     LiveStream[]
+  orders          OrderItem[]
+  reviews         Review[]
+  
+  @@index([userId])
+  @@index([category])
+  @@index([regionId])
+}
+
+model LiveStream {
+  id              String    @id @default(cuid())
+  title           String
+  description     String    @db.Text
+  scheduledStartTime DateTime
+  actualStartTime DateTime?
+  endTime         DateTime?
+  thumbnailUrl    String?
+  recordingUrl    String?   // 配信終了後の録画URL
+  status          String    @default("scheduled") // scheduled, live, ended, cancelled
+  viewCount       Int       @default(0)
+  likeCount       Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // 追加フィールド
+  orientation     String    @default("vertical") // vertical, horizontal
+  qualitySetting  String    @default("auto")     // auto, low, medium, high
+  visibility      String    @default("public")   // public, unlisted, private
+  commentEnabled  Boolean   @default(true)       // コメント許可
+  commentModeration Boolean  @default(false)     // コメントモデレーション
+  notifyFollowers Boolean   @default(true)       // フォロワーに通知
+  notifyTiming    Int       @default(15)         // 通知タイミング（分前）
+  tags            String[]  // 配信タグ
+  shopUrl         String?   // 外部ECサイトURL（該当する場合）
+  
+  // 関連情報
+  userId          String    // 配信者ID
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productIds      String[]  // 関連商品ID
+  products        Product[]
+  
+  // リレーション
+  chatMessages    ChatMessage[]
+  
+  @@index([userId])
+  @@index([status])
+  @@index([scheduledStartTime])
+}
+
+model ChatMessage {
+  id              String    @id @default(cuid())
+  content         String
+  createdAt       DateTime  @default(now())
+  
+  // 関連情報
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  livestreamId    String
+  livestream      LiveStream @relation(fields: [livestreamId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([livestreamId])
+}
+
+model Order {
+  id              String    @id @default(cuid())
+  orderNumber     String    @unique
+  totalAmount     Float
+  status          String    @default("pending") // pending, processing, shipped, delivered, cancelled
+  paymentStatus   String    @default("unpaid")  // unpaid, paid, refunded
+  paymentMethod   String
+  shippingAddress Json
+  shippingMethod  String
+  trackingNumber  String?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // 関連情報
+  userId          String    // 購入者ID
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // リレーション
+  orderItems      OrderItem[]
+  
+  @@index([userId])
+  @@index([status])
+  @@index([orderNumber])
+}
+
+model OrderItem {
+  id              String    @id @default(cuid())
+  quantity        Int
+  unitPrice       Float
+  totalPrice      Float
+  createdAt       DateTime  @default(now())
+  
+  // 関連情報
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Review {
+  id              String    @id @default(cuid())
+  rating          Int       // 1-5の評価
+  comment         String?   @db.Text
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // 関連情報
+  userId          String    // レビュー投稿者ID
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId       String    // レビュー対象商品ID
+  product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([productId])
+}
+
+model Region {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  prefecture      String
+  description     String?   @db.Text
+  imageUrl        String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // リレーション
+  products        Product[]
+  
+  @@index([name])
+  @@index([prefecture])
+}
+
+model Analytics {
+  id              String    @id @default(cuid())
+  date            DateTime
+  pageViews       Int       @default(0)
+  uniqueVisitors  Int       @default(0)
+  conversionRate  Float?
+  averageOrderValue Float?
+  totalSales      Float     @default(0)
+  topProducts     Json?     // 上位商品の配列
+  userDemographics Json?    // ユーザー層データ
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // 関連情報
+  userId          String?   // 販売者IDがある場合
+  user            User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@index([userId])
+  @@index([date])
 }
