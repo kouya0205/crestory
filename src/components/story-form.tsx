@@ -177,12 +177,11 @@ export function StoryForm({
                     />
                   ) : (
                     <RichTextEditor
-                      content={watchedValues.body || ""}
+                      value={watchedValues.body || ""}
                       onChange={(content) =>
                         setValue("body", content, { shouldDirty: true })
                       }
                       placeholder="あなたの体験を自由に書いてみてください..."
-                      disabled={isSubmitting}
                       characterLimit={2000}
                     />
                   )}
