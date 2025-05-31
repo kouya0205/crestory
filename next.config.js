@@ -13,8 +13,6 @@ const config = {
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
-  // フォント最適化の設定
-  optimizeFonts: true,
 };
 
 export default config;
