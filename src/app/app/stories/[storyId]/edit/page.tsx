@@ -2,9 +2,9 @@ import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
 
 interface EditStoryPageProps {
-  params: {
+  params: Promise<{
     storyId: string;
-  };
+  }>;
 }
 
 export default async function EditStoryPage({ params }: EditStoryPageProps) {
@@ -13,6 +13,8 @@ export default async function EditStoryPage({ params }: EditStoryPageProps) {
   if (!session) {
     redirect("/auth/signin");
   }
+
+  const { storyId } = await params;
 
   const lifeEventTags = [
     "誕生",
@@ -31,7 +33,7 @@ export default async function EditStoryPage({ params }: EditStoryPageProps) {
 
   // TODO: 実際のデータベースからエピソードを取得
   const mockStory = {
-    id: params.storyId,
+    id: storyId,
     title: "初めての海外旅行",
     date: "2023-08-15",
     content: `大学生の時に友人と一緒に行った初めての海外旅行。
