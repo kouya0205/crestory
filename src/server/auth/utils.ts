@@ -7,7 +7,9 @@ import type { User } from "@prisma/client";
  * @param password ハッシュ化する平文パスワード
  * @returns ハッシュ化されたパスワード
  */
-export const saltAndHashPassword = async (password: string): Promise<string> => {
+export const saltAndHashPassword = async (
+  password: string,
+): Promise<string> => {
   // ソルトを生成（コストファクター10）
   const salt = await bcrypt.genSalt(10);
   // パスワードをハッシュ化
@@ -23,7 +25,7 @@ export const saltAndHashPassword = async (password: string): Promise<string> => 
  */
 export const verifyPassword = async (
   password: string,
-  hashedPassword: string
+  hashedPassword: string,
 ): Promise<boolean> => {
   return await bcrypt.compare(password, hashedPassword);
 };
@@ -35,8 +37,8 @@ export const verifyPassword = async (
  * @returns 認証に成功したユーザーまたはnull
  */
 export const getUserFromDb = async (
-  email: string, 
-  password: string
+  email: string,
+  password: string,
 ): Promise<User | null> => {
   try {
     // メールアドレスでユーザーを検索
@@ -48,7 +50,7 @@ export const getUserFromDb = async (
     if (!user || !user.pwHash) {
       return null;
     }
-    
+
     // パスワードを検証
     const isValid = await verifyPassword(password, user.pwHash);
 
@@ -68,9 +70,9 @@ export const getUserFromDb = async (
  * @returns 作成されたユーザー
  */
 export const createUser = async (
-  email: string, 
-  password: string, 
-  name?: string
+  email: string,
+  password: string,
+  name?: string,
 ): Promise<User> => {
   // パスワードをハッシュ化
   const hashedPassword = await saltAndHashPassword(password);
@@ -85,4 +87,4 @@ export const createUser = async (
   });
 
   return user;
-}; 
+};

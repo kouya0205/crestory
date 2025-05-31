@@ -6,8 +6,10 @@ export default async function Home() {
   return (
     <HydrateClient>
       <LpHeader />
-      <HeroSection />
-      <HeroSection />
+      <main className="min-h-screen">
+        <HeroSection />
+        {/* 自分史サービスの特徴やメリットを紹介するセクションを追加予定 */}
+      </main>
     </HydrateClient>
   );
 }
