@@ -2,9 +2,9 @@ import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
 
 interface StoryDetailPageProps {
-  params: {
+  params: Promise<{
     storyId: string;
-  };
+  }>;
 }
 
 export default async function StoryDetailPage({
@@ -16,9 +16,11 @@ export default async function StoryDetailPage({
     redirect("/auth/signin");
   }
 
+  const { storyId } = await params;
+
   // TODO: 実際のデータベースからエピソードを取得
   const mockStory = {
-    id: params.storyId,
+    id: storyId,
     title: "初めての海外旅行",
     date: "2023-08-15",
     content: `

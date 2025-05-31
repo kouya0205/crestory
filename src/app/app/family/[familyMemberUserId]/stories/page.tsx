@@ -2,9 +2,9 @@ import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
 
 interface FamilyMemberStoriesPageProps {
-  params: {
+  params: Promise<{
     familyMemberUserId: string;
-  };
+  }>;
 }
 
 export default async function FamilyMemberStoriesPage({
@@ -16,9 +16,11 @@ export default async function FamilyMemberStoriesPage({
     redirect("/auth/signin");
   }
 
+  const { familyMemberUserId } = await params;
+
   // TODO: 実際のデータベースから家族メンバーとエピソードを取得
   const mockFamilyMember = {
-    id: params.familyMemberUserId,
+    id: familyMemberUserId,
     name: "田中 太郎",
     email: "taro@example.com",
     joinedAt: "2023-12-15T09:00:00Z",
@@ -127,7 +129,7 @@ export default async function FamilyMemberStoriesPage({
               <div className="flex-1">
                 <h2 className="mb-2 text-xl font-semibold text-gray-900">
                   <a
-                    href={`/app/family/${params.familyMemberUserId}/stories/${story.id}`}
+                    href={`/app/family/${familyMemberUserId}/stories/${story.id}`}
                     className="transition-colors hover:text-blue-600"
                   >
                     {story.title}
@@ -185,7 +187,7 @@ export default async function FamilyMemberStoriesPage({
                 {mockFamilyMember.name}が共有
               </div>
               <a
-                href={`/app/family/${params.familyMemberUserId}/stories/${story.id}`}
+                href={`/app/family/${familyMemberUserId}/stories/${story.id}`}
                 className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
               >
                 詳細を見る

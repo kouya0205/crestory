@@ -2,10 +2,10 @@ import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
 
 interface FamilyMemberStoryDetailPageProps {
-  params: {
+  params: Promise<{
     familyMemberUserId: string;
     storyId: string;
-  };
+  }>;
 }
 
 export default async function FamilyMemberStoryDetailPage({
@@ -17,15 +17,17 @@ export default async function FamilyMemberStoryDetailPage({
     redirect("/auth/signin");
   }
 
+  const { familyMemberUserId, storyId } = await params;
+
   // TODO: 実際のデータベースから家族メンバーとエピソードを取得
   const mockFamilyMember = {
-    id: params.familyMemberUserId,
+    id: familyMemberUserId,
     name: "田中 太郎",
     email: "taro@example.com",
   };
 
   const mockStory = {
-    id: params.storyId,
+    id: storyId,
     title: "初めての海外旅行",
     date: "2023-08-15",
     content: `
@@ -64,7 +66,7 @@ export default async function FamilyMemberStoryDetailPage({
           </a>
           <span>›</span>
           <a
-            href={`/app/family/${params.familyMemberUserId}/stories`}
+            href={`/app/family/${familyMemberUserId}/stories`}
             className="transition-colors hover:text-blue-600"
           >
             {mockFamilyMember.name}の自分史
@@ -240,7 +242,7 @@ export default async function FamilyMemberStoryDetailPage({
       {/* ナビゲーション */}
       <div className="mt-8 flex justify-between">
         <a
-          href={`/app/family/${params.familyMemberUserId}/stories`}
+          href={`/app/family/${familyMemberUserId}/stories`}
           className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
         >
           ← {mockFamilyMember.name}の自分史一覧に戻る
