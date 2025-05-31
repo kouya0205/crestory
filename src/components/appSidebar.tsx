@@ -31,8 +31,8 @@ export default function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>
-            <Link href="/dashboard" className="flex items-center">
-              <span className="text-xl font-bold text-indigo-600">PickBuy</span>
+            <Link href="/app" className="flex items-center">
+              <span className="text-xl font-bold text-indigo-600">自分史</span>
             </Link>
             {isMobile && (
               <X onClick={() => setOpenMobile(false)} className="ml-auto" />

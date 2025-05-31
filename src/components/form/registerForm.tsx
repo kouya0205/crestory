@@ -52,7 +52,7 @@ export default function RegisterForm() {
       }
 
       toast.success("アカウント登録が完了しました！");
-      router.push("/dashboard");
+      router.push("/app");
       router.refresh();
     },
     onError: (error) => {
@@ -99,7 +99,7 @@ export default function RegisterForm() {
   const handleGoogleLogin = async () => {
     try {
       const result = await signIn("google", {
-        callbackUrl: "/dashboard",
+        callbackUrl: "/app",
       });
 
       if (result?.error) {
@@ -114,7 +114,7 @@ export default function RegisterForm() {
   const handleDiscordLogin = async () => {
     try {
       const result = await signIn("discord", {
-        callbackUrl: "/dashboard",
+        callbackUrl: "/app",
       });
 
       if (result?.error) {
@@ -129,7 +129,7 @@ export default function RegisterForm() {
   const handleFacebookLogin = async () => {
     try {
       const result = await signIn("facebook", {
-        callbackUrl: "/dashboard",
+        callbackUrl: "/app",
       });
 
       if (result?.error) {

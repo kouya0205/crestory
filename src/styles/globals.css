@@ -171,3 +171,330 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Tiptap Editor Styles */
+.ProseMirror {
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.ProseMirror:focus {
+  box-shadow: 0 0 0 2px var(--pick-buy-primary-light);
+}
+
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3 {
+  line-height: 1.2;
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  text-wrap: pretty;
+  color: var(--pick-buy-neutral-800);
+}
+
+.ProseMirror h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  border-bottom: 2px solid var(--pick-buy-primary-light);
+  padding-bottom: 0.25rem;
+}
+
+.ProseMirror h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--pick-buy-primary);
+}
+
+.ProseMirror h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--pick-buy-neutral-700);
+}
+
+.ProseMirror p {
+  line-height: 1.7;
+  color: var(--pick-buy-neutral-700);
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--pick-buy-neutral-400);
+  pointer-events: none;
+  height: 0;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding: 0 1rem;
+  margin: 1.25rem 1rem 1.25rem 0.4rem;
+}
+
+.ProseMirror li {
+  margin: 0.5rem 0;
+}
+
+.ProseMirror li > p {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+.ProseMirror blockquote {
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  border-left: 4px solid var(--pick-buy-primary);
+  background: var(--pick-buy-primary-light);
+  border-radius: 0 0.5rem 0.5rem 0;
+  font-style: italic;
+  color: var(--pick-buy-neutral-700);
+  position: relative;
+}
+
+.ProseMirror blockquote::before {
+  content: '"';
+  font-size: 4rem;
+  color: var(--pick-buy-primary);
+  position: absolute;
+  top: -0.5rem;
+  left: 0.5rem;
+  line-height: 1;
+  opacity: 0.3;
+}
+
+.ProseMirror strong {
+  font-weight: 600;
+  color: var(--pick-buy-neutral-800);
+}
+
+.ProseMirror em {
+  font-style: italic;
+  color: var(--pick-buy-neutral-600);
+}
+
+.ProseMirror a {
+  color: var(--pick-buy-primary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.ProseMirror a:hover {
+  border-bottom-color: var(--pick-buy-primary);
+  background: var(--pick-buy-primary-light);
+  padding: 0.1rem 0.2rem;
+  border-radius: 0.25rem;
+}
+
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.ProseMirror img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Selection styling */
+.ProseMirror ::selection {
+  background: var(--pick-buy-primary-light);
+}
+
+/* Code styling (for future expansion) */
+.ProseMirror code {
+  background: var(--pick-buy-neutral-200);
+  color: var(--pick-buy-neutral-800);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  font-size: 0.9em;
+}
+
+.ProseMirror pre {
+  background: var(--pick-buy-neutral-800);
+  color: var(--pick-buy-neutral-100);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.ProseMirror pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+/* Placeholder styling improvements */
+.ProseMirror[data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--pick-buy-neutral-400);
+  pointer-events: none;
+  height: 0;
+  font-style: italic;
+}
+
+/* リスト項目のカスタムスタイル */
+.ProseMirror ul li::marker {
+  color: var(--pick-buy-primary);
+}
+
+.ProseMirror ol li::marker {
+  color: var(--pick-buy-primary);
+  font-weight: 600;
+}
+
+/* BubbleMenuのスタイル強化 */
+.bubble-menu {
+  background: white;
+  border: 1px solid var(--pick-buy-neutral-300);
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  padding: 0.5rem;
+  backdrop-filter: blur(10px);
+}
+
+/* ツールバーボタンのホバー効果強化 */
+.toolbar-button {
+  transition: all 0.2s ease;
+  border-radius: 0.375rem;
+}
+
+.toolbar-button:hover {
+  background: var(--pick-buy-primary-light);
+  color: var(--pick-buy-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 文字数カウンターのスタイル改善 */
+.character-counter {
+  font-family: "Inter", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+/* カスタムtiptapクラスのスタイリング */
+.ProseMirror .tiptap-heading {
+  position: relative;
+  scroll-margin-top: 2rem;
+}
+
+.ProseMirror .tiptap-heading.tiptap-heading:hover::after {
+  content: "🔗";
+  position: absolute;
+  left: -1.5rem;
+  opacity: 0.5;
+  cursor: pointer;
+  font-size: 0.8em;
+}
+
+.ProseMirror .tiptap-paragraph {
+  line-height: 1.7;
+  text-align: left;
+}
+
+.ProseMirror .tiptap-paragraph:first-of-type {
+  margin-top: 0;
+}
+
+.ProseMirror .tiptap-paragraph:last-of-type {
+  margin-bottom: 0;
+}
+
+.ProseMirror .tiptap-bullet-list,
+.ProseMirror .tiptap-ordered-list {
+  margin: 1.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.ProseMirror .tiptap-bullet-list li,
+.ProseMirror .tiptap-ordered-list li {
+  margin: 0.5rem 0;
+  padding-left: 0.5rem;
+}
+
+.ProseMirror .tiptap-blockquote {
+  margin: 2rem 0;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(
+    135deg,
+    var(--pick-buy-primary-light),
+    transparent
+  );
+  border-left: 4px solid var(--pick-buy-primary);
+  border-radius: 0 1rem 1rem 0;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ProseMirror .tiptap-link {
+  color: var(--pick-buy-primary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+  padding: 0.1rem 0.2rem;
+  border-radius: 0.25rem;
+}
+
+.ProseMirror .tiptap-link:hover {
+  background: var(--pick-buy-primary-light);
+  border-bottom-color: var(--pick-buy-primary);
+}
+
+.ProseMirror .tiptap-image {
+  display: block;
+  margin: 2rem auto;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.ProseMirror .tiptap-image:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+}
+
+/* レスポンシブ対応のフォントサイズ */
+@media (max-width: 768px) {
+  .ProseMirror h1 {
+    font-size: 1.5rem;
+  }
+
+  .ProseMirror h2 {
+    font-size: 1.25rem;
+  }
+
+  .ProseMirror h3 {
+    font-size: 1.125rem;
+  }
+
+  .ProseMirror .tiptap-paragraph {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  .ProseMirror .tiptap-paragraph {
+    color: #e2e8f0;
+  }
+
+  .ProseMirror h1,
+  .ProseMirror h2,
+  .ProseMirror h3 {
+    color: #f7fafc;
+  }
+
+  .ProseMirror .tiptap-blockquote {
+    background: linear-gradient(135deg, rgba(66, 153, 225, 0.1), transparent);
+    color: #cbd5e0;
+  }
+}

@@ -51,7 +51,7 @@ export default function SignInForm() {
   const handleGoogleLogin = async () => {
     try {
       const result = await signIn("google", {
-        callbackUrl: "/dashboard",
+        callbackUrl: "/app",
       });
 
       if (result?.error) {
@@ -66,7 +66,7 @@ export default function SignInForm() {
   const handleDiscordLogin = async () => {
     try {
       const result = await signIn("discord", {
-        callbackUrl: "/dashboard",
+        callbackUrl: "/app",
       });
 
       if (result?.error) {
@@ -81,7 +81,7 @@ export default function SignInForm() {
   const handleFacebookLogin = async () => {
     try {
       const result = await signIn("facebook", {
-        callbackUrl: "/dashboard",
+        callbackUrl: "/app",
       });
 
       if (result?.error) {
@@ -118,7 +118,7 @@ export default function SignInForm() {
       }
 
       toast.success("ログインしました!");
-      router.push("/dashboard");
+      router.push("/app");
       router.refresh();
     } catch (error) {
       toast.error((error as Error).message || "ログインに失敗しました");

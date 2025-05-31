@@ -29,3 +29,27 @@ export const credentialsSchema = object({
       message: "半角英数字で入力してください",
     }),
 });
+export const livestreamSchema = object({
+  // 基本情報
+  title: z.string().min(5, "タイトルは5文字以上で入力してください"),
+  description: z.string().min(10, "説明は10文字以上で入力してください"),
+  thumbnailUrl: z.string().optional(),
+  scheduledStartTime: z.date(),
+  endTime: z.date().optional(),
+
+  // 配信設定
+  orientation: z.enum(["vertical", "horizontal"]),
+  qualitySetting: z.enum(["auto", "low", "medium", "high"]),
+  visibility: z.enum(["public", "unlisted", "private"]),
+  commentEnabled: z.boolean(),
+  commentModeration: z.boolean(),
+
+  // 商品連携
+  productIds: z.array(z.string()),
+
+  // 通知設定
+  notifyFollowers: z.boolean(),
+  notifyTiming: z.number().min(0),
+  tags: z.array(z.string()).optional(),
+  shopUrl: z.string().url().optional().or(z.literal("")),
+});

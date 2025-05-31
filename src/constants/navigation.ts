@@ -1,42 +1,25 @@
 import type { NavItem } from "@/lib";
-import {
-  FiHome,
-  FiBox,
-  FiVideo,
-  FiShoppingBag,
-  FiBarChart2,
-  FiSettings,
-} from "react-icons/fi";
+import { FiHome, FiSettings, FiUsers, FiBook } from "react-icons/fi";
 
 export const navItems: NavItem[] = [
   {
-    href: "/dashboard",
+    href: "/app",
     icon: FiHome,
-    label: "ホーム",
+    label: "自分史",
   },
   {
-    href: "/dashboard/products",
-    icon: FiBox,
-    label: "商品管理",
+    href: "/app/family",
+    icon: FiUsers,
+    label: "家族",
   },
   {
-    href: "/dashboard/livestreams",
-    icon: FiVideo,
-    label: "ライブ配信",
-  },
-  {
-    href: "/dashboard/orders",
-    icon: FiShoppingBag,
-    label: "注文管理",
-  },
-  {
-    href: "/dashboard/analytics",
-    icon: FiBarChart2,
-    label: "分析",
-  },
-  {
-    href: "/dashboard/settings",
+    href: "/app/settings",
     icon: FiSettings,
     label: "設定",
+  },
+  {
+    href: "/app/stories",
+    icon: FiBook,
+    label: "自分史",
   },
 ];
