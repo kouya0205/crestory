@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
+import { Button } from "@/components/ui/button";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -116,6 +117,7 @@ export default async function ProfilePage() {
           <button className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">
             設定を保存
           </button>
+          <Button>アカウントを削除</Button>
         </div>
       </div>
     </div>
