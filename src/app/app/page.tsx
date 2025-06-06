@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
+import { api } from "@/trpc/server";
+import { StoryList } from "@/components/story-list";
 
 export default async function AppDashboard() {
   const session = await auth();
@@ -7,6 +9,9 @@ export default async function AppDashboard() {
   if (!session) {
     redirect("/auth/signin");
   }
+
+  // デフォルトの並び順でstory一覧を取得
+  const data = await api.story.getByUser({ orderBy: "newest" });
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -17,38 +22,7 @@ export default async function AppDashboard() {
         </p>
       </div>
 
-      <div className="mb-6">
-        <a
-          href="/app/stories/new"
-          className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-        >
-          <svg
-            className="mr-2 h-5 w-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          新しいエピソードを作成
-        </a>
-      </div>
-
-      <div className="grid gap-6">
-        {/* エピソード一覧コンポーネントをここに配置予定 */}
-        <div className="rounded-lg border bg-white p-6 shadow-sm">
-          <p className="text-center text-gray-500">
-            まだエピソードが作成されていません。
-            <br />
-            最初のエピソードを作成して、あなたの自分史を始めましょう。
-          </p>
-        </div>
-      </div>
+      <StoryList initialData={data} />
     </div>
   );
 }

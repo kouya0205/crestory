@@ -19,7 +19,6 @@ import { FcGoogle } from "react-icons/fc";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { credentialsSchema } from "@/lib/zod";
 import { Separator } from "@/components/ui/separator";
 import { FormInput } from "@/components/form/formInput";
 import {
@@ -31,6 +30,7 @@ import {
 } from "@/components/ui/card";
 import { FaDiscord } from "react-icons/fa";
 import { FaFacebook } from "react-icons/fa";
+import { credentialsSchema } from "@/lib/validations/auth";
 
 type InputType = z.infer<typeof credentialsSchema>;
 

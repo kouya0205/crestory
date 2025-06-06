@@ -18,7 +18,6 @@ import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signUpSchema } from "@/lib/zod";
 import type { z } from "zod";
 import {
   Card,
@@ -32,6 +31,7 @@ import { Separator } from "@/components/ui/separator";
 import { FcGoogle } from "react-icons/fc";
 import { FaDiscord } from "react-icons/fa";
 import { FaFacebook } from "react-icons/fa";
+import { signUpSchema } from "@/lib/validations/auth";
 
 type InputType = z.infer<typeof signUpSchema>;
 

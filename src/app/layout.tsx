@@ -3,7 +3,7 @@ import "@/styles/globals.css";
 import { type Metadata } from "next";
 import { Inter } from "next/font/google";
 
-import { TRPCReactProvider } from "@/trpc/react";
+import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
   title: "PickBuy（ピクバイ）",
@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="ja" className={`${inter.variable}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

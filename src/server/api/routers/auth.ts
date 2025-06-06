@@ -1,6 +1,6 @@
+import { signUpSchema } from "@/lib/validations/auth";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { createUser } from "@/server/auth/utils";
-import { signUpSchema } from "@/lib/zod";
 import { TRPCError } from "@trpc/server";
 
 export const authRouter = createTRPCRouter({

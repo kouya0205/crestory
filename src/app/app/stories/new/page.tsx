@@ -1,48 +1,38 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { StoryForm } from "../../../../components/story-form";
-
-type StoryFormData = {
-  title: string;
-  body: string;
-  eventDate?: Date;
-  lifeEventTag?:
-    | "BIRTH"
-    | "CHILDHOOD"
-    | "STUDENT_DAYS"
-    | "FIRST_JOB"
-    | "CAREER_CHANGE"
-    | "MARRIAGE"
-    | "CHILDBIRTH"
-    | "PARENTING"
-    | "HOBBY"
-    | "TRAVEL"
-    | "TURNING_POINT"
-    | "HEALTH"
-    | "OTHER";
-  visibility: "PRIVATE" | "FAMILY_ONLY";
-};
+import { useRouter } from "next/navigation";
+import { StoryForm, type StoryFormData } from "@/components/story-form";
+import { api } from "@/trpc/react";
 
 export default function NewStoryPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // tRPCミューテーション
+  const createStory = api.story.create.useMutation({
+    onSuccess: (data) => {
+      // 成功時にエピソード詳細ページに遷移
+      router.push(`/app/stories/${data.id}`);
+    },
+    onError: (error) => {
+      console.error("エピソード作成エラー:", error);
+      // TODO: エラー通知の表示（toastなど）
+    },
+  });
+
   const handleSubmit = async (data: StoryFormData) => {
     setIsSubmitting(true);
     try {
-      // TODO: tRPCでAPIを呼び出す実装
-      console.log("Submitting story:", data);
-
-      // 仮の遅延を追加（実際のAPI呼び出しをシミュレート）
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // 成功後の処理
-      router.push("/app");
+      await createStory.mutateAsync({
+        title: data.title,
+        body: data.body,
+        eventDate: data.eventDate,
+        lifeEventTag: data.lifeEventTag,
+        visibility: data.visibility,
+      });
     } catch (error) {
-      console.error("Failed to create story:", error);
-      // TODO: エラーハンドリング（toastなど）
+      console.error("エピソード作成に失敗しました:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -57,7 +47,7 @@ export default function NewStoryPage() {
       mode="create"
       onSubmit={handleSubmit}
       onCancel={handleCancel}
-      isSubmitting={isSubmitting}
+      isSubmitting={isSubmitting || createStory.isPending}
     />
   );
 }
