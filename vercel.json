@@ -1,0 +1,15 @@
+{
+  "framework": "nextjs",
+  "nodeVersion": "22",
+  "buildCommand": "npm run build",
+  "installCommand": "npm ci --production=false",
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "runtime": "nodejs22.x"
+    }
+  },
+  "env": {
+    "SKIP_ENV_VALIDATION": "1"
+  },
+  "regions": ["nrt1"]
+}
