@@ -1,6 +1,6 @@
 import { z } from "zod";
+import { deleteStoryImage } from "@/lib/blob";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { deleteStoryImage } from "../../../lib/blob";
 
 export const imageRouter = createTRPCRouter({
   // 画像メタデータをDBに保存

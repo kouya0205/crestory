@@ -1,31 +1,9 @@
 import { auth } from "@/server/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { uploadEditorImage, validateImageFile } from "../../../lib/blob";
-
-// アップロード可能なファイル設定
-const ALLOWED_FILE_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-];
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-
-// 入力バリデーション
-const uploadSchema = z.object({
-  file: z
-    .instanceof(File)
-    .refine(
-      (file) => file.size <= MAX_FILE_SIZE,
-      "ファイルサイズは10MB以下にしてください",
-    )
-    .refine(
-      (file) => ALLOWED_FILE_TYPES.includes(file.type),
-      "サポートされていないファイル形式です",
-    ),
-});
+import { uploadEditorImage } from "@/lib/blob";
+import { uploadSchema } from "@/lib/validations/upload";
+import { db } from "@/server/db";
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,11 +24,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ファイル検証
-    validateImageFile(file);
+    // ファイル検証（zodスキーマを使用）
+    try {
+      uploadSchema.parse({ file });
+      console.log("✅ File validation passed");
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        const errorMessage =
+          validationError.errors[0]?.message || "ファイル検証に失敗しました";
+        console.log(`❌ File validation failed: ${errorMessage}`);
+        return NextResponse.json({ error: errorMessage }, { status: 400 });
+      }
+      throw validationError;
+    }
 
-    // Vercel Blobにアップロード
+    // 画像アップロード
     const imageUrl = await uploadEditorImage(file);
+
+    // データベースにImageレコードを作成
+    const imageRecord = await db.image.create({
+      data: {
+        url: imageUrl,
+        filename: file.name,
+        fileSize: file.size,
+        mimeType: file.type,
+        uploaderId: userId,
+      },
+    });
 
     return NextResponse.json({
       success: true,
@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
       filename: file.name,
       size: file.size,
       mimeType: file.type,
+      imageId: imageRecord.id, // データベースのImageレコードIDも返す
     });
   } catch (error) {
     console.error("Image upload error:", error);

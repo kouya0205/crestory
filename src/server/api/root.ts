@@ -1,6 +1,7 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { authRouter } from "@/server/api/routers/auth";
 import { imageRouter } from "@/server/api/routers/image";
+import { storyRouter } from "@/server/api/routers/story";
 
 /**
  * This is the primary router for your server.
@@ -10,6 +11,7 @@ import { imageRouter } from "@/server/api/routers/image";
 export const appRouter = createTRPCRouter({
   auth: authRouter,
   image: imageRouter,
+  story: storyRouter,
 });
 
 // export type definition of API

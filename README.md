@@ -70,6 +70,7 @@
 - [tRPC](https://trpc.io) - タイプセーフなAPI
 - [Radix UI](https://www.radix-ui.com/) - UIコンポーネント
 - [Framer Motion](https://www.framer.com/motion/) - アニメーション
+- **画像ストレージ**: Vercel Blob (本番環境) / ローカルファイルシステム (開発環境)
 
 ## ルーティング構造
 
@@ -141,3 +142,54 @@ npm run dev
 - [Docker](https://docker.com)
 
 詳細なデプロイメント手順については、各プラットフォームのドキュメントを参照してください。
+
+## ディレクトリ構成
+
+```
+src/
+├── app/                  # App Router (Next.js 13+)
+│   ├── api/             # API Routes
+│   ├── stories/         # ストーリー関連ページ
+│   └── page.tsx         # メインダッシュボード
+├── components/          # Reactコンポーネント
+│   └── ui/             # UI共通コンポーネント
+├── lib/                # ユーティリティ
+├── server/             # サーバーサイド処理
+│   ├── api/            # tRPC Router
+│   └── auth/           # 認証設定
+└── trpc/               # tRPCクライアント設定
+```
+
+## 開発ガイド
+
+### 画像アップロード機能
+
+1. **遅延アップロード**: エディタで画像を追加した時点では一時的なBlob URLを使用し、保存ボタン押下時に実際のアップロードを実行
+2. **画像編集**: 選択した画像に対して数値入力とドラッグでのリサイズが可能
+3. **バリデーション**: ファイルサイズ（10MB以下）とファイル形式（JPEG, PNG, WebP, GIF）を検証
+
+### データベース構造
+
+- `Story`: エピソード本体
+- `Image`: アップロード画像の管理
+- `StoryImage`: エピソードと画像の関連付け（表示サイズ情報も含む）
+- `Family`: 家族グループ管理
+- `FamilyMembership`: 家族メンバーの招待・承認状態
+
+## トラブルシューティング
+
+### 画像アップロードエラー
+
+1. **Vercel Blob設定エラー**: `BLOB_READ_WRITE_TOKEN`が正しく設定されているか確認
+2. **開発環境での動作**: ローカルファイルシステムにフォールバックするため、`public/uploads`フォルダが作成されているか確認
+3. **ファイルサイズエラー**: 10MB以下の画像ファイルを使用
+
+### データベース接続エラー
+
+1. PostgreSQLコンテナが起動しているか確認: `docker ps`
+2. 環境変数`DATABASE_URL`が正しく設定されているか確認
+3. マイグレーションが実行されているか確認: `npm run db:generate`
+
+## ライセンス
+
+MIT License

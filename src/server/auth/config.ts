@@ -4,13 +4,13 @@ import DiscordProvider from "next-auth/providers/discord";
 
 import { db } from "@/server/db";
 import Credentials from "next-auth/providers/credentials";
-import { credentialsSchema } from "@/lib/zod";
 import { ZodError } from "zod";
 import { getUserFromDb } from "./utils";
 import { v4 as uuid } from "uuid";
 import { encode as defaultEncode } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
+import { credentialsSchema } from "@/lib/validations/auth";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`

@@ -134,9 +134,11 @@ model Image {
 
 // Story-Image中間テーブル
 model StoryImage {
-  id        String   @id @default(cuid())
-  order     Int      @default(0) // 画像の表示順序
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  order        Int      @default(0) // 画像の表示順序
+  displayWidth String?  // エディター内での表示幅 (例: "300px")
+  displayHeight String? // エディター内での表示高さ (例: "200px")
+  createdAt    DateTime @default(now())
   
   // Relations
   storyId   String

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import { Save, Eye, Calendar, Tag, FileText } from "lucide-react";
 
-import { RichTextEditor } from "./ui/rich-text-editor";
+import { RichTextEditor, type RichTextEditorRef } from "./ui/rich-text-editor";
 import { DatePicker } from "./ui/date-picker";
 import { LifeEventSelector, type LifeEventTag } from "./ui/life-event-selector";
 import { Button } from "./ui/button";
@@ -51,6 +51,8 @@ const storyFormSchema = z.object({
 
 type StoryFormData = z.infer<typeof storyFormSchema>;
 
+export type { StoryFormData };
+
 interface StoryFormProps {
   initialData?: Partial<StoryFormData>;
   onSubmit: (data: StoryFormData) => void;
@@ -67,6 +69,7 @@ export function StoryForm({
   mode = "create",
 }: StoryFormProps) {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const editorRef = useRef<RichTextEditorRef>(null);
 
   const form = useForm<StoryFormData>({
     resolver: zodResolver(storyFormSchema),
@@ -89,8 +92,19 @@ export function StoryForm({
 
   const watchedValues = watch();
 
-  const handleFormSubmit: SubmitHandler<StoryFormData> = (data) => {
-    onSubmit(data);
+  const handleFormSubmit: SubmitHandler<StoryFormData> = async (data) => {
+    try {
+      // エディターに一時画像がある場合、アップロードしてURLを置換
+      if (editorRef.current?.saveWithImages) {
+        const updatedBody = await editorRef.current.saveWithImages(data.body);
+        data.body = updatedBody;
+      }
+
+      onSubmit(data);
+    } catch (error) {
+      console.error("保存処理エラー:", error);
+      // TODO: エラー通知の表示
+    }
   };
 
   const togglePreview = () => {
@@ -177,6 +191,7 @@ export function StoryForm({
                     />
                   ) : (
                     <RichTextEditor
+                      ref={editorRef}
                       value={watchedValues.body || ""}
                       onChange={(content) =>
                         setValue("body", content, { shouldDirty: true })
