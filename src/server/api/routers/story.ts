@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import type { Prisma } from "@prisma/client";
+import { deleteStoryImage } from "@/lib/blob";
 
 // エピソード作成用のスキーマ
 const createStorySchema = z.object({
@@ -179,6 +180,68 @@ async function associateImagesWithStory(
   }
 }
 
+// エピソード削除時に孤立した画像をクリーンアップするヘルパー関数
+async function cleanupOrphanedImages(
+  db: Prisma.TransactionClient,
+  storyId: string,
+) {
+  // 削除するエピソードに関連付けられている画像を取得
+  const storyImages = await db.storyImage.findMany({
+    where: { storyId },
+    include: { image: true },
+  });
+
+  // 関連画像のIDリストを作成
+  const imageIds = storyImages.map((si) => si.imageId);
+
+  if (imageIds.length === 0) return;
+
+  // 各画像について、他のエピソードで使用されているかチェック
+  const orphanedImages = [];
+  for (const imageId of imageIds) {
+    const otherUsages = await db.storyImage.count({
+      where: {
+        imageId,
+        storyId: { not: storyId }, // 削除するエピソード以外で使用されているか
+      },
+    });
+
+    if (otherUsages === 0) {
+      // 他のエピソードで使用されていない場合は孤立画像
+      const imageData = storyImages.find((si) => si.imageId === imageId)?.image;
+      if (imageData) {
+        orphanedImages.push(imageData);
+      }
+    }
+  }
+
+  // 孤立した画像をVercel BlobとDBから削除
+  for (const image of orphanedImages) {
+    try {
+      // Vercel Blobから削除
+      await deleteStoryImage(image.url);
+      console.log(`Successfully deleted image from Blob: ${image.url}`);
+    } catch (error) {
+      console.error(`Failed to delete image from Blob: ${image.url}`, error);
+      // Blobからの削除に失敗してもDBからは削除する
+    }
+
+    try {
+      // DBから削除
+      await db.image.delete({
+        where: { id: image.id },
+      });
+      console.log(`Successfully deleted image from DB: ${image.id}`);
+    } catch (error) {
+      console.error(`Failed to delete image from DB: ${image.id}`, error);
+    }
+  }
+
+  console.log(
+    `Cleaned up ${orphanedImages.length} orphaned images for story ${storyId}`,
+  );
+}
+
 export const storyRouter = createTRPCRouter({
   // エピソード作成
   create: protectedProcedure
@@ -345,27 +408,32 @@ export const storyRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // エピソードの存在と権限を確認
-      const existingStory = await ctx.db.story.findFirst({
-        where: {
-          id: input.id,
-          authorId: ctx.session.user.id,
-        },
-      });
-
-      if (!existingStory) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "エピソードが見つからないか、削除権限がありません",
+      return await ctx.db.$transaction(async (tx) => {
+        // エピソードの存在と権限を確認
+        const existingStory = await tx.story.findFirst({
+          where: {
+            id: input.id,
+            authorId: ctx.session.user.id,
+          },
         });
-      }
 
-      // エピソードを削除（関連する画像の関連付けも自動削除される）
-      await ctx.db.story.delete({
-        where: { id: input.id },
+        if (!existingStory) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "エピソードが見つからないか、削除権限がありません",
+          });
+        }
+
+        // 孤立した画像をクリーンアップ（エピソード削除前に実行）
+        await cleanupOrphanedImages(tx, input.id);
+
+        // エピソードを削除（関連するStoryImageレコードもCascadeで自動削除される）
+        await tx.story.delete({
+          where: { id: input.id },
+        });
+
+        return { success: true };
       });
-
-      return { success: true };
     }),
 
   // 特定のエピソードを取得
