@@ -112,7 +112,7 @@ export function StoryForm({
       }, 500);
     }
 
-    setValue("body", content);
+    setValue("body", content, { shouldDirty: true });
   };
 
   const handleFormSubmit: SubmitHandler<StoryFormData> = async (data) => {
@@ -249,7 +249,9 @@ export function StoryForm({
                 <CardContent>
                   <DatePicker
                     date={watchedValues.eventDate}
-                    onDateChange={(date) => setValue("eventDate", date)}
+                    onDateChange={(date) =>
+                      setValue("eventDate", date, { shouldDirty: true })
+                    }
                     placeholder="日付を選択（任意）"
                     disabled={isSubmitting}
                     className="w-full"
@@ -269,7 +271,9 @@ export function StoryForm({
                 <CardContent>
                   <LifeEventSelector
                     value={watchedValues.lifeEventTag}
-                    onValueChange={(value) => setValue("lifeEventTag", value)}
+                    onValueChange={(value) =>
+                      setValue("lifeEventTag", value, { shouldDirty: true })
+                    }
                     placeholder="カテゴリを選択（任意）"
                     disabled={isSubmitting}
                     className="w-full"

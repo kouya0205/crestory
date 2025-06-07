@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/trpc/react";
 import { StoryForm, type StoryFormData } from "@/components/story-form";
+import { toast } from "sonner";
 
 interface EditStoryClientProps {
   story: {
@@ -19,51 +20,41 @@ interface EditStoryClientProps {
 export default function EditStoryClient({ story }: EditStoryClientProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState<{
-    type: "success" | "error" | null;
-    text: string;
-  }>({ type: null, text: "" });
 
   const updateStory = api.story.update.useMutation({
     onSuccess: (data) => {
-      setMessage({
-        type: "success",
-        text: "エピソードを更新しました。詳細ページに移動します...",
+      toast.success("エピソードを更新しました", {
+        description: "変更が正常に保存されました。",
       });
 
-      // 2秒後にページ遷移
+      // 1秒後にページ遷移
       setTimeout(() => {
         router.push(`/app/stories/${data.id}`);
-      }, 2000);
+      }, 1000);
     },
     onError: (error) => {
       console.error("エピソード更新エラー:", error);
-      setMessage({
-        type: "error",
-        text: error.message || "エピソードの更新中にエラーが発生しました。",
+      toast.error("更新に失敗しました", {
+        description:
+          error.message || "エピソードの更新中にエラーが発生しました。",
       });
       setIsSubmitting(false);
     },
   });
 
   const handleSubmit = async (data: StoryFormData) => {
-    console.log("=== 編集フォーム送信開始 ===");
-    console.log("送信データ:", data);
-    console.log("ストーリーID:", story.id);
-
     setIsSubmitting(true);
-    setMessage({ type: null, text: "" });
 
     try {
       // バリデーション
       if (!data.title.trim()) {
-        setMessage({ type: "error", text: "タイトルは必須です" });
+        toast.error("タイトルは必須です");
         setIsSubmitting(false);
         return;
       }
 
       if (!data.body.trim()) {
-        setMessage({ type: "error", text: "本文は必須です" });
+        toast.error("本文は必須です");
         setIsSubmitting(false);
         return;
       }
@@ -77,17 +68,17 @@ export default function EditStoryClient({ story }: EditStoryClientProps) {
         visibility: data.visibility,
       };
 
-      console.log("tRPCミューテーション送信データ:", updateData);
+      // console.log("tRPCミューテーション送信データ:", updateData);
 
       await updateStory.mutateAsync(updateData);
 
-      console.log("=== 更新成功 ===");
+      // console.log("=== 更新成功 ===");
     } catch (error) {
-      console.error("=== 更新エラー ===", error);
+      // console.error("=== 更新エラー ===", error);
       if (!updateStory.isError) {
-        setMessage({
-          type: "error",
-          text: "予期しないエラーが発生しました。もう一度お試しください。",
+        toast.error("更新に失敗しました", {
+          description:
+            "予期しないエラーが発生しました。もう一度お試しください。",
         });
         setIsSubmitting(false);
       }
@@ -113,58 +104,12 @@ export default function EditStoryClient({ story }: EditStoryClientProps) {
   };
 
   return (
-    <div>
-      {/* メッセージ表示エリア */}
-      {message.type && (
-        <div
-          className={`mb-4 rounded-lg p-4 ${
-            message.type === "success"
-              ? "border border-green-200 bg-green-50 text-green-800"
-              : "border border-red-200 bg-red-50 text-red-800"
-          }`}
-        >
-          <div className="flex">
-            <div className="flex-shrink-0">
-              {message.type === "success" ? (
-                <svg
-                  className="h-5 w-5 text-green-400"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="h-5 w-5 text-red-400"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              )}
-            </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium">{message.text}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <StoryForm
-        mode="edit"
-        initialData={initialData}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        isSubmitting={isSubmitting || updateStory.isPending}
-      />
-    </div>
+    <StoryForm
+      mode="edit"
+      initialData={initialData}
+      onSubmit={handleSubmit}
+      onCancel={handleCancel}
+      isSubmitting={isSubmitting || updateStory.isPending}
+    />
   );
 }

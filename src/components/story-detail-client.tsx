@@ -3,6 +3,30 @@
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { RichTextViewer } from "@/components/ui/rich-text-viewer";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { api } from "@/trpc/react";
+import { toast } from "sonner";
 
 interface StoryDetailClientProps {
   story: {
@@ -37,6 +61,51 @@ export default function StoryDetailClient({
   story,
   isOwner,
 }: StoryDetailClientProps) {
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const deleteStory = api.story.delete.useMutation({
+    onSuccess: () => {
+      toast.success("エピソードを削除しました", {
+        description: "エピソードが正常に削除されました。",
+      });
+
+      // 1秒後にエピソード一覧にリダイレクト
+      setTimeout(() => {
+        router.push("/app");
+      }, 1000);
+    },
+    onError: (error) => {
+      console.error("エピソード削除エラー:", error);
+      toast.error("削除に失敗しました", {
+        description:
+          error.message || "エピソードの削除中にエラーが発生しました。",
+      });
+      setIsDeleting(false);
+    },
+  });
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteStory.mutateAsync({ id: story.id });
+    } catch (error) {
+      // エラーハンドリングはonErrorで処理される
+    }
+  };
+
+  const handleShare = () => {
+    // 将来の実装: 共有機能
+    toast.info("共有機能", {
+      description: "共有機能は今後実装予定です。",
+    });
+  };
+
+  const handleDuplicate = () => {
+    // 将来の実装: 複製機能
+    router.push(`/app/stories/new?template=${story.id}`);
+  };
+
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
       {/* ヘッダー */}
@@ -65,14 +134,120 @@ export default function StoryDetailClient({
             </div>
           </div>
           {isOwner && (
-            <div className="flex gap-2">
-              <Link
-                href={`/app/stories/${story.id}/edit`}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
-              >
-                編集
-              </Link>
-            </div>
+            <AlertDialog>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">メニューを開く</span>
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                      />
+                    </svg>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => router.push(`/app/stories/${story.id}/edit`)}
+                  >
+                    <svg
+                      className="mr-2 h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                    編集
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDuplicate}>
+                    <svg
+                      className="mr-2 h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    複製
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleShare}>
+                    <svg
+                      className="mr-2 h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+                      />
+                    </svg>
+                    共有
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem
+                      variant="destructive"
+                      disabled={isDeleting}
+                    >
+                      <svg
+                        className="mr-2 h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                      削除
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    エピソードを削除しますか？
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    この操作は取り消すことができません。エピソード「
+                    {story.title}」とその関連データが完全に削除されます。
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete}>
+                    {isDeleting ? "削除中..." : "削除"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
       </div>
@@ -110,10 +285,7 @@ export default function StoryDetailClient({
       {/* エピソード本文 */}
       <div className="mb-8 rounded-lg border bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-lg font-semibold text-gray-900">エピソード</h2>
-        <div
-          className="prose max-w-none"
-          dangerouslySetInnerHTML={{ __html: story.body }}
-        />
+        <RichTextViewer content={story.body} />
       </div>
 
       {/* 画像一覧 */}
