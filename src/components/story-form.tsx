@@ -69,6 +69,7 @@ export function StoryForm({
   mode = "create",
 }: StoryFormProps) {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [isImageDeleting, setIsImageDeleting] = useState(false);
   const editorRef = useRef<RichTextEditorRef>(null);
 
   const form = useForm<StoryFormData>({
@@ -92,7 +93,34 @@ export function StoryForm({
 
   const watchedValues = watch();
 
+  // RichTextEditorの内容変更を処理する関数
+  const handleBodyChange = (content: string) => {
+    // 画像削除の検出（blob:URLの削除を検出）
+    const hasImages = content.includes("blob:") || content.includes("<img");
+    const previousContent = watchedValues.body || "";
+    const hadImages =
+      previousContent.includes("blob:") || previousContent.includes("<img");
+    const imageRemoved = hadImages && !hasImages;
+
+    // 画像削除時の特別処理
+    if (imageRemoved) {
+      setIsImageDeleting(true);
+
+      // 500ms後にフラグをリセット（画像削除処理の完了を待つ）
+      setTimeout(() => {
+        setIsImageDeleting(false);
+      }, 500);
+    }
+
+    setValue("body", content);
+  };
+
   const handleFormSubmit: SubmitHandler<StoryFormData> = async (data) => {
+    // 画像削除中は保存処理をブロック
+    if (isImageDeleting) {
+      return;
+    }
+
     try {
       // エディターに一時画像がある場合、アップロードしてURLを置換
       if (editorRef.current?.saveWithImages) {
@@ -193,9 +221,7 @@ export function StoryForm({
                     <RichTextEditor
                       ref={editorRef}
                       value={watchedValues.body || ""}
-                      onChange={(content) =>
-                        setValue("body", content, { shouldDirty: true })
-                      }
+                      onChange={handleBodyChange}
                       placeholder="あなたの体験を自由に書いてみてください..."
                       characterLimit={2000}
                     />
@@ -223,9 +249,7 @@ export function StoryForm({
                 <CardContent>
                   <DatePicker
                     date={watchedValues.eventDate}
-                    onDateChange={(date) =>
-                      setValue("eventDate", date, { shouldDirty: true })
-                    }
+                    onDateChange={(date) => setValue("eventDate", date)}
                     placeholder="日付を選択（任意）"
                     disabled={isSubmitting}
                     className="w-full"
@@ -245,9 +269,7 @@ export function StoryForm({
                 <CardContent>
                   <LifeEventSelector
                     value={watchedValues.lifeEventTag}
-                    onValueChange={(value) =>
-                      setValue("lifeEventTag", value, { shouldDirty: true })
-                    }
+                    onValueChange={(value) => setValue("lifeEventTag", value)}
                     placeholder="カテゴリを選択（任意）"
                     disabled={isSubmitting}
                     className="w-full"
@@ -338,7 +360,7 @@ export function StoryForm({
             <div className="flex gap-3">
               <Button
                 type="submit"
-                disabled={isSubmitting || !isDirty}
+                disabled={isSubmitting || !isDirty || isImageDeleting}
                 className="flex items-center gap-2"
               >
                 <Save className="h-4 w-4" />
