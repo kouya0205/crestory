@@ -68,13 +68,8 @@ export default function EditStoryClient({ story }: EditStoryClientProps) {
         visibility: data.visibility,
       };
 
-      // console.log("tRPCミューテーション送信データ:", updateData);
-
       await updateStory.mutateAsync(updateData);
-
-      // console.log("=== 更新成功 ===");
     } catch (error) {
-      // console.error("=== 更新エラー ===", error);
       if (!updateStory.isError) {
         toast.error("更新に失敗しました", {
           description:
@@ -97,10 +92,9 @@ export default function EditStoryClient({ story }: EditStoryClientProps) {
     title: story.title,
     body: story.body,
     eventDate: story.eventDate ? new Date(story.eventDate) : undefined,
-    lifeEventTag: story.lifeEventTag as
-      | StoryFormData["lifeEventTag"]
-      | undefined,
-    visibility: story.visibility as StoryFormData["visibility"] | undefined,
+    lifeEventTag:
+      (story.lifeEventTag as StoryFormData["lifeEventTag"]) ?? undefined,
+    visibility: story.visibility as StoryFormData["visibility"],
   };
 
   return (
