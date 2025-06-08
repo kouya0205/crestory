@@ -101,7 +101,15 @@ async function associateImagesWithStory(
   imageData: Array<{ url: string; width?: string; height?: string }>,
   userId: string,
 ) {
-  if (imageData.length === 0) return;
+  if (imageData.length === 0) {
+    // 画像がない場合でも既存の関連付けを削除する
+    await db.storyImage.deleteMany({
+      where: {
+        storyId: storyId,
+      },
+    });
+    return;
+  }
 
   const imageUrls = imageData.map((img) => img.url);
 
@@ -180,6 +188,38 @@ async function associateImagesWithStory(
   }
 }
 
+// エピソード更新時に孤立した画像をクリーンアップするヘルパー関数
+async function cleanupOrphanedImagesAfterUpdate(db: Prisma.TransactionClient) {
+  // 全ての孤立した画像を検索（どのストーリーにも関連付けられていない画像）
+  const orphanedImages = await db.image.findMany({
+    where: {
+      stories: {
+        none: {}, // StoryImageレコードが存在しない画像
+      },
+    },
+  });
+
+  // 孤立した画像をVercel BlobとDBから削除
+  for (const image of orphanedImages) {
+    try {
+      // Vercel Blobから削除
+      await deleteStoryImage(image.url);
+    } catch (error) {
+      console.error(`Failed to delete image from Blob: ${image.url}`, error);
+      // Blobからの削除に失敗してもDBからは削除する
+    }
+
+    try {
+      // DBから削除
+      await db.image.delete({
+        where: { id: image.id },
+      });
+    } catch (error) {
+      console.error(`Failed to delete image from DB: ${image.id}`, error);
+    }
+  }
+}
+
 // エピソード削除時に孤立した画像をクリーンアップするヘルパー関数
 async function cleanupOrphanedImages(
   db: Prisma.TransactionClient,
@@ -220,7 +260,6 @@ async function cleanupOrphanedImages(
     try {
       // Vercel Blobから削除
       await deleteStoryImage(image.url);
-      console.log(`Successfully deleted image from Blob: ${image.url}`);
     } catch (error) {
       console.error(`Failed to delete image from Blob: ${image.url}`, error);
       // Blobからの削除に失敗してもDBからは削除する
@@ -231,15 +270,10 @@ async function cleanupOrphanedImages(
       await db.image.delete({
         where: { id: image.id },
       });
-      console.log(`Successfully deleted image from DB: ${image.id}`);
     } catch (error) {
       console.error(`Failed to delete image from DB: ${image.id}`, error);
     }
   }
-
-  console.log(
-    `Cleaned up ${orphanedImages.length} orphaned images for story ${storyId}`,
-  );
 }
 
 export const storyRouter = createTRPCRouter({
@@ -374,6 +408,9 @@ export const storyRouter = createTRPCRouter({
             imageData,
             ctx.session.user.id,
           );
+
+          // 更新後に孤立した画像をクリーンアップ
+          await cleanupOrphanedImagesAfterUpdate(tx);
 
           // 関連付け後のエピソードを再取得
           const updatedStory = await tx.story.findUnique({

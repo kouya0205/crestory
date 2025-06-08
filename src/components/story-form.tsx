@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -70,6 +70,7 @@ export function StoryForm({
 }: StoryFormProps) {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isImageDeleting, setIsImageDeleting] = useState(false);
+  const [isImageUploading, setIsImageUploading] = useState(false);
   const editorRef = useRef<RichTextEditorRef>(null);
 
   const form = useForm<StoryFormData>({
@@ -88,10 +89,24 @@ export function StoryForm({
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors, isDirty },
   } = form;
 
   const watchedValues = watch();
+
+  // 初期データが変更された際にフォームをリセット
+  useEffect(() => {
+    if (initialData) {
+      reset({
+        title: initialData.title || "",
+        body: initialData.body || "",
+        eventDate: initialData.eventDate,
+        lifeEventTag: initialData.lifeEventTag,
+        visibility: initialData.visibility || "PRIVATE",
+      });
+    }
+  }, [initialData, reset]);
 
   // RichTextEditorの内容変更を処理する関数
   const handleBodyChange = (content: string) => {
@@ -124,13 +139,16 @@ export function StoryForm({
     try {
       // エディターに一時画像がある場合、アップロードしてURLを置換
       if (editorRef.current?.saveWithImages) {
+        setIsImageUploading(true);
         const updatedBody = await editorRef.current.saveWithImages(data.body);
         data.body = updatedBody;
+        setIsImageUploading(false);
       }
 
       onSubmit(data);
     } catch (error) {
       console.error("保存処理エラー:", error);
+      setIsImageUploading(false);
       // TODO: エラー通知の表示
     }
   };
@@ -364,15 +382,22 @@ export function StoryForm({
             <div className="flex gap-3">
               <Button
                 type="submit"
-                disabled={isSubmitting || !isDirty || isImageDeleting}
+                disabled={
+                  isSubmitting ||
+                  isImageUploading ||
+                  (mode === "create" && !isDirty) ||
+                  isImageDeleting
+                }
                 className="flex items-center gap-2"
               >
                 <Save className="h-4 w-4" />
-                {isSubmitting
-                  ? "保存中..."
-                  : mode === "create"
-                    ? "エピソードを作成"
-                    : "変更を保存"}
+                {isImageUploading
+                  ? "画像アップロード中..."
+                  : isSubmitting
+                    ? "保存中..."
+                    : mode === "create"
+                      ? "エピソードを作成"
+                      : "変更を保存"}
               </Button>
             </div>
           </div>
