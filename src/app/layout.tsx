@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Inter } from "next/font/google";
 
 import { Providers } from "@/components/providers";
+import { HydrateClient } from "@/trpc/server";
 
 export const metadata: Metadata = {
   title: {
@@ -53,7 +54,9 @@ export default function RootLayout({
   return (
     <html lang="ja" className={`${inter.variable}`}>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <HydrateClient>{children}</HydrateClient>
+        </Providers>
       </body>
     </html>
   );

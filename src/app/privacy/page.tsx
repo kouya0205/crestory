@@ -1,3 +1,5 @@
+import Footer from "@/components/lp/footer";
+
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -166,6 +168,7 @@ export default function PrivacyPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
