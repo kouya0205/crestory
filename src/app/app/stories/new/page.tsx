@@ -5,11 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { StoryForm, type StoryFormData } from "@/components/story-form";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "新規作成",
-};
 
 export default function NewStoryPage() {
   const router = useRouter();

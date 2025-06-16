@@ -4,7 +4,6 @@ import { api } from "@/trpc/server";
 import Link from "next/link";
 import StoryDetailClient from "@/components/story-detail-client";
 import type { Metadata, ResolvingMetadata } from "next";
-import { id } from "date-fns/locale";
 
 export async function generateMetadata(
   { params }: StoryDetailPageProps,
