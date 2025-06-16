@@ -1,10 +1,21 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
+import type { Metadata, ResolvingMetadata } from "next";
 
 interface FamilyMemberStoriesPageProps {
   params: Promise<{
     familyMemberUserId: string;
   }>;
+}
+
+export async function generateMetadata(
+  { params }: FamilyMemberStoriesPageProps,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const { familyMemberUserId } = await params;
+  return {
+    title: "家族史一覧 | Crestory",
+  };
 }
 
 export default async function FamilyMemberStoriesPage({

@@ -1,11 +1,22 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
+import type { Metadata, ResolvingMetadata } from "next";
 
 interface FamilyMemberStoryDetailPageProps {
   params: Promise<{
     familyMemberUserId: string;
     storyId: string;
   }>;
+}
+
+export async function generateMetadata(
+  { params }: FamilyMemberStoryDetailPageProps,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const { storyId } = await params;
+  return {
+    title: storyId + " | Crestory",
+  };
 }
 
 export default async function FamilyMemberStoryDetailPage({

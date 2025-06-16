@@ -1,5 +1,10 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "家族史",
+};
 
 export default async function FamilyPage() {
   const session = await auth();

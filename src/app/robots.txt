@@ -1,0 +1,16 @@
+User-agent: *
+
+Disallow: /app/settings
+Disallow: /admin/
+Disallow: /api/
+Disallow: /search?
+Disallow: /filter?
+Disallow: /*?page=
+Disallow: /preview/
+Disallow: /print/
+
+User-agent: Googlebot
+Allow: /public/
+Disallow: /nogooglebot/
+
+Sitemap: https://crestory.vercel.app/sitemap.xml

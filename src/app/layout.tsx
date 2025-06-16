@@ -6,10 +6,40 @@ import { Inter } from "next/font/google";
 import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
-  title: "PickBuy（ピクバイ）",
+  title: {
+    template: "%s | Crestory",
+    default: "Crestory - あなたの人生を物語に",
+  },
   description:
-    "AIのサポートを受けながら、個人の自分史を簡単に作成・整理し、プライバシーに配慮した形で家族や指定した範囲で共有したり、自身の人生を振り返って自己理解を深めたり、他者の経験（公開設定されたもの）から学びを得たりすることを目的としたWebプラットフォーム。記録の容易化: AIが手間のかかる作業をサポートし、誰でも自分史を残しやすくする。家族の絆の深化: 世代を超えて人生の物語を共有し、理解を深める。自己成長の促進: 過去を振り返ることで自己理解を深め、未来の指針を得る。知見の共有: （公開設定の場合）他者の多様な人生経験から学びを得る機会を提供する。",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+    "Crestoryは、あなたの思い出や経験を大切な家族史として残すためのサービスです。",
+  openGraph: {
+    title: "Crestory - 家族の歴史を紡ぐ",
+    description: "大切な思い出を、次世代へ。Crestoryで始める家族の物語作り",
+    images: [
+      {
+        url: "https://crestory.vercel.app/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Crestory - Family History Platform",
+      },
+    ],
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Crestory - あなたの人生を物語に",
+    description: "大切な思い出を、次世代へ。Crestoryで始める家族の物語作り",
+    images: ["https://crestory.vercel.app/og-image.jpg"],
+  },
+  // その他の重要なメタデータ
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "https://crestory.vercel.app",
+  },
 };
 
 const inter = Inter({
