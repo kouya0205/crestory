@@ -169,7 +169,7 @@ export function StoryList({ initialData }: StoryListProps) {
   return (
     <>
       {/* ヘッダー部分 */}
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <Link
           href="/app/stories/new"
           className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
