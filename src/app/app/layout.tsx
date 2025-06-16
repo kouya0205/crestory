@@ -4,6 +4,11 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/appSidebar";
 import { Suspense } from "react";
 import DashboardSkelton from "@/components/skelton/dashboard/dashboardSkelton";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "ホーム",
+};
 
 export default async function AppLayout({
   children,

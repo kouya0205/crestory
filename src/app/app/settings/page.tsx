@@ -1,6 +1,11 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
 import { Button } from "@/components/ui/button";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "プロフィール",
+};
 
 export default async function ProfilePage() {
   const session = await auth();

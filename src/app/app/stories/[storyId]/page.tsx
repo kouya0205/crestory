@@ -3,6 +3,27 @@ import { auth } from "@/server/auth";
 import { api } from "@/trpc/server";
 import Link from "next/link";
 import StoryDetailClient from "@/components/story-detail-client";
+import type { Metadata, ResolvingMetadata } from "next";
+import { id } from "date-fns/locale";
+
+export async function generateMetadata(
+  { params }: StoryDetailPageProps,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  // read route params
+  const { storyId } = await params;
+
+  const story = await api.story.getById({ id: storyId });
+
+  const previousImages = (await parent).openGraph?.images || [];
+
+  return {
+    title: story.title + " | Crestory",
+    openGraph: {
+      images: ["/some-specific-page-image.jpg", ...previousImages],
+    },
+  };
+}
 
 interface StoryDetailPageProps {
   params: Promise<{

@@ -1,6 +1,11 @@
 import RegisterForm from "@/components/form/registerForm";
 import { auth } from "@/server/auth";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "新規登録",
+};
 
 export default async function RegisterPage() {
   const session = await auth();

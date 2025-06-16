@@ -3,11 +3,23 @@ import { auth } from "@/server/auth";
 import { api } from "@/trpc/server";
 import Link from "next/link";
 import EditStoryClient from "@/components/edit-story-client";
+import type { Metadata, ResolvingMetadata } from "next";
 
 interface EditStoryPageProps {
   params: Promise<{
     storyId: string;
   }>;
+}
+
+export async function generateMetadata(
+  { params }: EditStoryPageProps,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const { storyId } = await params;
+  const story = await api.story.getById({ id: storyId });
+  return {
+    title: story.title + " | Crestory",
+  };
 }
 
 export default async function EditStoryPage({ params }: EditStoryPageProps) {
