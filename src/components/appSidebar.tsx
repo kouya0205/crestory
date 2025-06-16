@@ -31,8 +31,10 @@ export default function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>
-            <Link href="/app" className="flex items-center">
-              <span className="text-xl font-bold text-indigo-600">自分史</span>
+            <Link href="/app">
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-2xl font-bold text-transparent">
+                crestory
+              </span>
             </Link>
             {isMobile && (
               <X onClick={() => setOpenMobile(false)} className="ml-auto" />
