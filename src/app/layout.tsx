@@ -7,6 +7,7 @@ import { Providers } from "@/components/providers";
 import { HydrateClient } from "@/trpc/server";
 
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: {
@@ -60,6 +61,7 @@ export default function RootLayout({
           <HydrateClient>
             {children}
             <Analytics />
+            <SpeedInsights />
           </HydrateClient>
         </Providers>
       </body>
