@@ -6,6 +6,8 @@ import { Inter } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { HydrateClient } from "@/trpc/server";
 
+import { Analytics } from "@vercel/analytics/next";
+
 export const metadata: Metadata = {
   title: {
     template: "%s | Crestory",
@@ -55,7 +57,10 @@ export default function RootLayout({
     <html lang="ja" className={`${inter.variable}`}>
       <body>
         <Providers>
-          <HydrateClient>{children}</HydrateClient>
+          <HydrateClient>
+            {children}
+            <Analytics />
+          </HydrateClient>
         </Providers>
       </body>
     </html>
