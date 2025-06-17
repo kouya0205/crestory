@@ -1,11 +1,7 @@
-# crestory（クレストリー） 👨‍👩‍👧‍👦
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/crestory)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+# crestory（クレストリー）
 
 <div align="center">
-  <img src="docs/assets/logo.png" alt="crestory logo" width="200"/>
-  <p><strong>デジタルで紡ぐ、あなたと家族の物語</strong></p>
+  <img src="public/images/crestory-top-noback.webp" alt="crestory top" width="420"/>
 </div>
 
 ## 📌 サービスURL
