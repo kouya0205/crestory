@@ -1,44 +1,36 @@
 "use client";
 
-import { CTASection } from "@/components/lp/ctaSection";
-import { FeaturesSection } from "@/components/lp/featuresSection";
+import React from "react";
+import Header from "@/components/lp/header";
+import HeroSection from "@/components/lp/hero-section";
+import FeaturesSection from "@/components/lp/features-section";
+import DemoSection from "@/components/lp/demo-section";
+import FeatureDetailsSection from "@/components/lp/feature-details-section";
+import TabsSection from "@/components/lp/tabs-section";
+import TestimonialsSection from "@/components/lp/testimonials-section";
+import PricingSection from "@/components/lp/pricing-section";
+import FAQSection from "@/components/lp/faq-section";
+import CTASection from "@/components/lp/cta-section";
 import Footer from "@/components/lp/footer";
-import { LpHeader } from "@/components/lp/header";
-import { HeroSection } from "@/components/lp/hero-section";
-import { SplashScreen } from "@/components/lp/splashScreen";
-import { WhySection } from "@/components/lp/whySection";
-import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
 
-const CrestoryLanding = () => {
-  const [showSplash, setShowSplash] = useState(true);
-
+const App: React.FC = () => {
   return (
-    <div className="relative">
-      <AnimatePresence>
-        {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {!showSplash && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-          >
-            <LpHeader />
-            <main>
-              <HeroSection />
-              <FeaturesSection />
-              <WhySection />
-              <CTASection />
-            </main>
-            <Footer />
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div className="min-h-screen bg-white font-sans text-gray-800">
+      <Header />
+      <main>
+        <HeroSection />
+        <FeaturesSection />
+        <DemoSection />
+        <FeatureDetailsSection />
+        <TabsSection />
+        <TestimonialsSection />
+        <PricingSection />
+        <FAQSection />
+        <CTASection />
+      </main>
+      <Footer />
     </div>
   );
 };
 
-export default CrestoryLanding;
+export default App;
